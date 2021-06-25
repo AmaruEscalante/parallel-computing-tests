@@ -1,6 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <omp.h>
+
+// Mac: gcc -Xpreprocessor -fopenmp 02-qsort.c -o 02-qsort -lomp
+// Linux: gcc -fopenmp 02-qsort.c -o 02-qsort
+// To execute: ./02-qsort 50 8
+// First argument is the size of array
+// Second argument is the number of threads
 
 void swap(int *x, int *y){
   int temp = *x;
@@ -50,7 +57,9 @@ int main(int argc, char **argv){
     w[i] = rand()%100;
   }
   
-  omp_set_num_threads(2);
+  int nthread = atoi(argv[2]);
+
+  omp_set_num_threads(nthread);
 
   start_time = omp_get_wtime();
 
@@ -69,7 +78,7 @@ int main(int argc, char **argv){
   }
 
   run_time = omp_get_wtime() - start_time;
-	printf("Execution time was %lf seconds\n ",run_time);
+	printf("Execution time was %lf seconds\n",run_time);
 
   return 0;
 } 
