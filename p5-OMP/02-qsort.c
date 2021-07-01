@@ -38,7 +38,7 @@ void qs(int *z, int zstart, int zend, int firstcall){
   else {
     if(zstart < zend) {
       pivot = separate(z, zstart,zend);
-      #pragma omp task firstprivate(z, zstart, pivot) 
+      #pragma omp task firstprivate(z, zstart, pivot)
       {
         qs(z, zstart, pivot - 1, 0);
       }
