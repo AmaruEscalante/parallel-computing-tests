@@ -1,5 +1,5 @@
-#include <mpi.h>
 #include <iostream>
+//#define SIZE (1 << 4) // 2^19  524288
 #define SIZE 10
 using namespace std;
 
@@ -16,26 +16,32 @@ void bucketSort(int a[], int n)
           cout << buckets[a[i]] << "\t";
      }
      cout << endl;
+
+     // cout << "BUCKET" << endl;
+     // for (i = 0; i < SIZE; i++)
+     //      cout << buckets[i] << "\t";
+     // cout << "END BUCKET" << endl;
+
      for (i = 0, j = 0; j < SIZE; ++j)
-     {
-          cout << "j = " << j << "\t" << endl;
           for (k = buckets[j]; k > 0; --k)
           {
-               a[i] = j;
-               cout << "infor" << j << "\t";
-               i++;
+               a[i++] = j;
+               //cout<<a[i]<<"\t";
           }
-     }
 }
 
-int main(int argc, char *argv[])
+int main()
 {
-     int i, a[] = {3, 6, 5, 1, 8, 4, 3, 1}, n = 8;
-     int rank, size;
+     int i, a[] = {3, 6, 5, 1, 8, 3, 9, 4}, n = 8;
+     // float m[SIZE];
+     // /* 2^11 = 2048 and 2^12 = 4096 */
+     // srand(time(NULL));
 
-     MPI_Init(&argc, &argv);
-     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-     MPI_Comm_size(MPI_COMM_WORLD, &size);
+     // for (i = 0; i < SIZE; i++)
+     // {
+     //      m[i] = (float)(rand() % SIZE) + (float)(rand() % SIZE) * 0.01;
+     //      printf("%.2f ", m[i]);
+     // }
 
      cout << "Before sorting:\n";
      for (i = 0; i < n; ++i)
