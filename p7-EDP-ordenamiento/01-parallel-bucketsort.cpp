@@ -3,7 +3,7 @@
 #include <algorithm>
 #define DEBUG 0
 
-#define SIZE (1 << 4) // 2^19  524288
+#define SIZE (1 << 19) // 2^19  524288
 using namespace std;
 
 int main(int argc, char **argv)
@@ -30,10 +30,14 @@ int main(int argc, char **argv)
             for (i = 0; i < loc_size; i++)
             {
                 a[k * loc_size + i] = (float)(rand() % (2 * loc_size) + (k * 2 * loc_size));
-                printf("%.2f ", a[k * loc_size + i]);
+                // #if DEBUG
+                //                 printf("%.2f ", a[k * loc_size + i]);
+                // #endif
             }
         }
-        printf("\n");
+        // #if DEBUG
+        //         printf("\n");
+        // #endif
     }
     t2 = MPI_Wtime();
     // Scatter array of numbers
@@ -65,15 +69,18 @@ int main(int argc, char **argv)
     t5 = MPI_Wtime();
     if (rank == 0)
     {
-        printf("\nSorted array is: ");
+        //printf("\nSorted array is: ");
         for (int i = 0; i < SIZE; i++)
         {
-            printf("%.2f ", a[i]);
+            //printf("%.2f ", a[i]);
         }
-        printf("\n");
+        // printf("\n");
         printf("Bucket sort completed in %lf msecs \n", (t5 - t2) / 0.001);
+        printf("Scatter took %lf \n", (t3 - t2) / 0.001);
+        printf("Gatther took %lf \n", (t5 - t4) / 0.001);
+        printf("Comm took %lf \n", (t5 - t4 + t3 - t2) / 0.001);
     }
-    printf("P[%d] Took %lf msecs \n", rank, (t4 - t3) / 0.001);
+    printf("P[%d] Sort took %lf msecs \n", rank, (t4 - t3) / 0.001);
 
     MPI_Finalize();
 }
