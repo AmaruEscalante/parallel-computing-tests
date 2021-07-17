@@ -15,6 +15,8 @@
 #include <stdlib.h> /* for random function */
 #include <mpi.h>
 
+#define Num (1 << 19)
+
 void Make_numbers(long int[], int, int, int);
 void Sequential_sort(long int[], int);
 int Get_minpos(long int[], int);
@@ -31,6 +33,7 @@ int main(int argc, char *argv[])
     int my_rank;
     int i;
     double start, stop; /* for timing */
+    double start_sort, stop_sort; /* for timing */
 
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &p);
@@ -40,11 +43,17 @@ int main(int argc, char *argv[])
     {
         if (argc != 2)
         {
-            printf("please input the total number of elements to sort: bucketsort_mpi 160000\n");
-            MPI_Finalize();
-            return 1;
+            // printf("please input the total number of elements to sort: bucketsort_mpi 160000\n");
+            printf("Not argument found use 2^19 by default\n");
+            // MPI_Finalize();
+            // return 1;
+            n = Num;
         }
-        n = atoi(argv[1]);
+        else 
+        {
+            n = atoi(argv[1]);
+        }
+        
         /* check if parameters are valid */
         if (n % p != 0)
         {
@@ -81,15 +90,19 @@ int main(int argc, char *argv[])
        MPI_Scatter(big_array, n_bar, MPI_LONG, local_array, n_bar, MPI_LONG, 0, MPI_COMM_WORLD);  */
 
     Put_numbers_in_bucket(big_array, local_array, n, n_bar, p, my_rank);
+    start_sort = MPI_Wtime();
     Sequential_sort(local_array, n_bar);
+    stop_sort = MPI_Wtime();
     MPI_Gather(local_array, n_bar, MPI_LONG, big_array, n_bar, MPI_LONG, 0, MPI_COMM_WORLD);
     stop = MPI_Wtime();
+
+    printf("\n\nTime to sort bucket = %lf msecs\n", (stop_sort - start_sort) / 0.001);
 
     if (my_rank == 0)
     {
 
-        for (i = 0; i < n; i++)
-            printf("%7ld %c", big_array[i], i % 8 == 7 ? '\n' : ' ');
+        // for (i = 0; i < n; i++)
+        //     printf("%7ld %c", big_array[i], i % 8 == 7 ? '\n' : ' ');
 
         printf("\n\nTime to sort using %d processes = %lf msecs\n", p, (stop - start) / 0.001);
     }
@@ -112,16 +125,16 @@ void Make_numbers(long int big_array[] /* out */,
     for (q = 0; q < p; q++)
     {
 
-        printf("\nP%d: ", q);
+        // printf("\nP%d: ", q);
         for (i = 0; i < n_bar; i++)
         {
             big_array[q * n_bar + i] = random() % (2 * n / p) + (q * 2 * n / p);
 
-            printf("%7ld %s", big_array[q * n_bar + i], i % 8 == 7 ? "\n    " : " ");
+            // printf("%7ld %s", big_array[q * n_bar + i], i % 8 == 7 ? "\n    " : " ");
         }
-        printf("\n");
+        // printf("\n");
     }
-    printf("\n");
+    // printf("\n");
 } /* Make_numbers */
 
 /*****************************************************************/
@@ -172,9 +185,9 @@ void Put_numbers_in_bucket(long int big_array[] /* in */,
         {
             bucket = big_array[i] / (2 * n_bar); /* Assume the range is 2*n */
             MPI_Send(&big_array[i], 1, MPI_LONG, bucket, 0, MPI_COMM_WORLD);
-            printf("P%d:%ld ", bucket, big_array[i]);
+            // printf("P%d:%ld ", bucket, big_array[i]);
         }
-        printf("\n");
+        // printf("\n");
     }
     for (i = 0; i < n_bar; i++)
     {
